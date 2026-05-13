@@ -2,232 +2,194 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panki VPN - X Style</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Panki VPN</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        /* Цвета в стиле X (Twitter) */
         :root {
-            --black: #000000;
-            --white: #ffffff;
-            --x-blue: #1d9bf0;
-            --dark-gray: #16181c;
-            --light-gray: #71767b;
-            --border-color: #2f3336;
+            --red: #ff0000;
+            --blue: #0044ff;
+            --bg: #000;
+            --text: #fff;
         }
 
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--black);
-            color: var(--white);
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'Courier New', monospace;
             margin: 0;
-            padding: 0;
             display: flex;
             flex-direction: column;
             height: 100vh;
             overflow: hidden;
+            text-transform: uppercase;
         }
 
-        /* Шапка */
+        /* Сканирующие линии */
+        body::before {
+            content: " ";
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            background-size: 100% 2px, 3px 100%;
+            z-index: 100;
+            pointer-events: none;
+        }
+
         .header {
+            padding: 20px;
+            border-bottom: 2px solid var(--text);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 12px 16px;
-            border-bottom: 1px solid var(--border-color);
         }
 
-        .brand {
-            font-size: 20px;
-            font-weight: 800;
+        .header h1 {
+            font-size: 1.5rem;
+            margin: 0;
+            letter-spacing: -1px;
+            position: relative;
         }
 
         .settings-btn {
-            background: none;
+            background: var(--text);
+            color: var(--bg);
             border: none;
-            cursor: pointer;
-            color: var(--white);
             padding: 8px;
-            border-radius: 50%;
-            transition: background 0.2s;
+            font-weight: bold;
+            cursor: pointer;
         }
 
-        .settings-btn:active {
-            background: rgba(255, 255, 255, 0.1);
-        }
-
-        /* Главный контент */
-        .main-content {
-            flex-grow: 1;
+        .content {
+            flex: 1;
+            padding: 20px;
             display: flex;
             flex-direction: column;
             justify-content: center;
-            align-items: center;
-            padding: 20px;
         }
 
-        .input-group {
-            width: 100%;
-            max-width: 350px;
+        .terminal-box {
+            border: 2px solid var(--text);
+            padding: 30px 15px;
+            position: relative;
+        }
+
+        .terminal-box::before {
+            content: "[ INPUT_REQUIRED ]";
+            position: absolute;
+            top: -10px; left: 15px;
+            background: var(--bg);
+            padding: 0 5px;
+            font-size: 0.7rem;
+            color: var(--red);
+        }
+
+        .input-label {
+            display: block;
+            margin-bottom: 15px;
+            font-weight: bold;
+            font-size: 0.9rem;
         }
 
         input[type="text"] {
             width: 100%;
-            padding: 16px;
-            border-radius: 4px;
-            border: 1px solid var(--border-color);
-            background-color: var(--black);
-            color: var(--white);
-            font-size: 18px;
+            background: transparent;
+            border: 1px solid var(--text);
+            padding: 15px;
+            color: var(--red);
+            font-family: 'Courier New', monospace;
+            font-size: 1rem;
             outline: none;
             text-align: center;
-            transition: border-color 0.2s;
         }
 
         input[type="text"]:focus {
-            border-color: var(--x-blue);
+            border-color: var(--red);
+            box-shadow: 0 0 10px var(--red);
         }
 
-        .hint {
-            color: var(--light-gray);
-            font-size: 14px;
-            margin-top: 8px;
-            text-align: center;
-        }
+        .footer { padding: 20px; }
 
-        /* Подвал */
-        .footer {
-            padding: 16px;
-            border-top: 1px solid var(--border-color);
-        }
-
-        .buy-button {
+        .btn-main {
             width: 100%;
-            padding: 12px;
-            border-radius: 9999px; /* Скругленные кнопки как в X */
-            border: none;
-            background-color: var(--white);
-            color: var(--black);
-            font-size: 16px;
-            font-weight: 700;
-            cursor: pointer;
-        }
-
-        /* Модальное окно настроек */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(91, 112, 131, 0.4);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 100;
-        }
-
-        .modal {
-            background: var(--black);
-            width: 90%;
-            max-width: 320px;
-            border-radius: 16px;
-            border: 1px solid var(--border-color);
             padding: 20px;
-        }
-
-        .modal-title {
-            font-size: 18px;
-            font-weight: 800;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-
-        .setting-item {
-            margin-bottom: 20px;
-        }
-
-        .setting-label {
-            color: var(--light-gray);
-            font-size: 13px;
-            margin-bottom: 8px;
-            display: block;
-        }
-
-        .lang-select {
-            width: 100%;
-            background: var(--dark-gray);
-            color: var(--white);
-            border: 1px solid var(--border-color);
-            padding: 10px;
-            border-radius: 8px;
-            font-size: 16px;
-        }
-
-        .support-btn {
-            width: 100%;
-            background: transparent;
-            color: var(--x-blue);
-            border: 1px solid var(--border-color);
-            padding: 10px;
-            border-radius: 9999px;
-            font-weight: 700;
-            margin-top: 10px;
-            cursor: pointer;
-        }
-
-        .close-modal {
-            width: 100%;
-            margin-top: 15px;
-            color: var(--light-gray);
-            background: none;
+            background: var(--text);
+            color: var(--bg);
             border: none;
-            font-size: 14px;
-            cursor: pointer;
+            font-size: 1.2rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            box-shadow: -6px 6px 0px var(--red);
+            transition: 0.1s;
         }
+
+        .btn-main:active {
+            transform: translate(-3px, 3px);
+            box-shadow: -2px 2px 0px var(--blue);
+        }
+
+        /* Меню (Шторка) */
+        .overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255, 0, 0, 0.1);
+            backdrop-filter: blur(5px);
+            display: none;
+            z-index: 200;
+        }
+
+        .sheet {
+            position: fixed;
+            bottom: -100%;
+            left: 0; width: 100%;
+            background: var(--bg);
+            border-top: 4px solid var(--text);
+            padding: 30px 20px;
+            transition: 0.3s;
+            z-index: 300;
+        }
+
+        .sheet.active { bottom: 0; }
+
+        .menu-item {
+            border: 1px solid var(--text);
+            padding: 15px;
+            margin-bottom: 10px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .menu-item:active { background: var(--red); color: #fff; }
+
     </style>
 </head>
 <body>
 
     <div class="header">
-        <div class="brand">Panki VPN</div>
-        <button class="settings-btn" onclick="toggleModal(true)">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 15.5C13.93 15.5 15.5 13.93 15.5 12C15.5 10.07 13.93 8.5 12 8.5C10.07 8.5 8.5 10.07 8.5 12C8.5 13.93 10.07 15.5 12 15.5ZM19.43 12.98C19.47 12.66 19.5 12.34 19.5 12C19.5 11.66 19.47 11.34 19.43 11.02L21.54 9.37C21.73 9.22 21.78 8.95 21.66 8.73L19.66 5.27C19.54 5.05 19.27 4.97 19.05 5.05L16.56 6.05C16.04 5.65 15.48 5.32 14.87 5.07L14.49 2.42C14.46 2.18 14.25 2 14 2H10C9.75 2 9.54 2.18 9.51 2.42L9.13 5.07C8.52 5.32 7.96 5.66 7.44 6.05L4.95 5.05C4.73 4.97 4.46 5.05 4.34 5.27L2.34 8.73C2.21 8.95 2.27 9.22 2.46 9.37L4.57 11.02C4.53 11.34 4.5 11.67 4.5 12C4.5 12.33 4.53 12.66 4.57 12.98L2.46 14.63C2.27 14.78 2.22 15.05 2.34 15.27L4.34 18.73C4.46 18.95 4.73 19.03 4.95 18.95L7.44 17.95C7.96 18.34 8.52 18.68 9.13 18.93L9.51 21.58C9.54 21.82 9.75 22 10 22H14C14.25 22 14.46 21.82 14.49 21.58L14.87 18.93C15.48 18.67 16.04 18.34 16.56 17.95L19.05 18.95C19.27 19.03 19.54 18.95 19.66 18.73L21.66 15.27C21.78 15.05 21.73 14.78 21.54 14.63L19.43 12.98Z"/>
-            </svg>
-        </button>
+        <h1 id="app-title">PANKIVPN</h1>
+        <button class="settings-btn" onclick="toggleSheet(true)">[ OPTS ]</button>
     </div>
 
-    <div class="main-content">
-        <div class="input-group">
-            <input type="text" id="vpn-key" placeholder="Ключ доступа">
-            <div class="hint">Вставьте ваш ключ после оплаты</div>
+    <div class="content">
+        <div class="terminal-box">
+            <label class="input-label" id="label-text">Введите свой ключ</label>
+            <input type="text" id="vpnKey" placeholder="XXXX-XXXX-XXXX">
         </div>
     </div>
 
     <div class="footer">
-        <button class="buy-button" onclick="buyAction()">Купить подписку</button>
+        <button class="btn-main" id="buy-btn" onclick="handleBuy()">КУПИТЬ ДОСТУП</button>
     </div>
 
-    <div class="modal-overlay" id="settingsModal">
-        <div class="modal">
-            <div class="modal-title">Настройки</div>
-            
-            <div class="setting-item">
-                <span class="setting-label">Язык приложения</span>
-                <select class="lang-select" id="langSelect" onchange="changeLanguage()">
-                    <option value="ru">Русский</option>
-                    <option value="en">English</option>
-                </select>
-            </div>
-
-            <div class="setting-item">
-                <span class="setting-label">Нужна помощь?</span>
-                <button class="support-btn" onclick="openSupport()">Написать в поддержку</button>
-            </div>
-
-            <button class="close-modal" onclick="toggleModal(false)">Закрыть</button>
-        </div>
+    <div class="overlay" id="overlay" onclick="toggleSheet(false)"></div>
+    <div class="sheet" id="sheet">
+        <div class="menu-item" onclick="setLanguage('ru')">RU // РУССКИЙ</div>
+        <div class="menu-item" onclick="setLanguage('en')">EN // ENGLISH</div>
+        <div class="menu-item" onclick="openSupport()" style="border-color: var(--red); color: var(--red);">[ SUPPORT_BOT ]</div>
+        <div class="menu-item" onclick="toggleSheet(false)" style="margin-top: 20px; opacity: 0.5;">BACK</div>
     </div>
 
     <script>
@@ -235,24 +197,37 @@
         tg.expand();
         tg.setHeaderColor('#000000');
 
-        function toggleModal(show) {
-            document.getElementById('settingsModal').style.display = show ? 'flex' : 'none';
+        const translations = {
+            ru: { label: "Введите свой ключ", buy: "КУПИТЬ ДОСТУП", confirm: "Инициализировать оплату?" },
+            en: { label: "Enter access key", buy: "BUY ACCESS", confirm: "Initialize payment?" }
+        };
+
+        let currentLang = 'ru';
+
+        function setLanguage(lang) {
+            currentLang = lang;
+            document.getElementById('label-text').innerText = translations[lang].label;
+            document.getElementById('buy-btn').innerText = translations[lang].buy;
+            toggleSheet(false);
+            tg.HapticFeedback.impactOccurred('heavy');
         }
 
-        function changeLanguage() {
-            const lang = document.getElementById('langSelect').value;
-            tg.showAlert("Язык изменен на: " + (lang === 'ru' ? 'Русский' : 'English'));
-            // Здесь должна быть логика смены текста на странице
+        function toggleSheet(show) {
+            document.getElementById('sheet').classList.toggle('active', show);
+            document.getElementById('overlay').style.display = show ? 'block' : 'none';
         }
 
         function openSupport() {
-            // Замените на вашу ссылку на бота или аккаунт поддержки
-            tg.openTelegramLink("https://t.me/your_support_username");
+            tg.openTelegramLink("https://t.me/pankivpnsupportbot");
         }
 
-        function buyAction() {
-            tg.HapticFeedback.impactOccurred('medium');
-            tg.showConfirm("Оформить подписку?");
+        function handleBuy() {
+
+            document.body.style.filter = "invert(1)";
+            setTimeout(() => document.body.style.filter = "none", 100);
+            
+            tg.HapticFeedback.notificationOccurred('success');
+            tg.showConfirm(translations[currentLang].confirm);
         }
     </script>
 </body>
